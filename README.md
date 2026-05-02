@@ -10,47 +10,25 @@ Jeu tactique au tour par tour en vue isométrique 2.5D (deck de sorts, passifs).
 | **Pipeline** | URP |
 | **Scène principale** | `Assets/Monjeu.unity` |
 
-Après clone : laisser Unity régénérer `Library/` (non versionné). Ne pas committer `Library/`, `Logs/`, `UserSettings/`.
+Phase 3 — Réseau → ~65% Ce qu'il reste vraiment :
 
-## Déjà fonctionnel (local)
+Sync du RNG de sélection des passifs entre les deux clients (risque de divergence actuellement)
+Gestion déconnexion propre (défaite auto + retour au hub)
+Edge cases MasterClient (timer réseau, cast simultané)
+Phase 4 — DA → ~35%
 
-- Grille isométrique, pathfinding A*, caméra, génération d’arène et zones de spawn  
-- Phases : **passifs** → **placement** → **combat** (`CombatInitializer`)  
-- Tours, PA/PM, sorts (zones, cooldowns), UI deck / HUD / timer  
-- Données : nombreux `SpellData` / `PassiveData` sous `Assets/_Game/ScriptableObjects/`  
-- Menu Unity **Oracle** (génération de contenu, wizards) pour l’outilery Editor  
+Animations personnage multi-directions (Idle, Walk, Hit, Death)
+VFX par sort
+Sons (musiques Suno + impacts/UI Freesound)
+Conformité pixel art (PPU constant, filtre Point)
+Phase 5 — Polish MVP → ~55%
 
-Code gameplay principal : `Assets/_Game/Scripts/` (`Core`, `Combat`, `UI`, `Editor`).
-
----
-
-## Priorités — par où commencer demain
-
-Ordre recommandé si l’objectif est un **MVP jouable à deux en ligne** :
-
-### 1. Réseau (le plus urgent côté « produit »)
-
-- Le dossier **`Assets/Photon`** contient le SDK, mais **`Assets/_Game` ne l’utilise pas encore** : pas de synchronisation des actions combat.
-- À faire : connexion / room, **MasterClient** qui valide les actions, RPC (ou équivalent) pour au minimum : déplacement, cast de sort, fin de tour, choix passif si applicable, gestion **déconnexion**.
-- Aujourd’hui le adversaire est **placé en automatique** : à remplacer par un vrai second joueur quand le réseau sera là.
-
-### 2. Navigation entre écrans
-
-- Manque un flux propre : **menu principal** → **lobby / matchmaking** → **scène de combat** (au lieu de tout partir d’une scène de démo unique).
-- Ça peut se faire en parallèle du réseau, mais le réseau sans changement de scène reste limité pour un vrai jeu.
-
-### 3. Polish MVP (après ou en parallèle léger)
-
-- Animations perso (toutes directions), VFX par sort, sons UI + combat, cohérence pixel art (PPU, filtre Point, etc.).
-- Optionnel rapide à ajouter si besoin : **DOTween** (pas encore dans le flux packages obligatoire du GDD).
-
-### 4. Tests & équilibrage
-
-- Surtout **après** intégration réseau : latence, désynchronisation, timer, bugs de grille, charge Photon.
-
-### 5. Post-MVP
-
-- Modes 2v2 / 3v3, MMR, historique… — détaillé dans la roadmap longue.
+Écran Victoire/Défaite
+Sons de base
+Tests bout en bout 1v1 (idéalement avec ParrelSync)
+Décision design à trancher : ordre des tours aléatoire ou par initiative (le code dit initiative décroissante, le GDD dit aléatoire)
+Mise à jour README/ROADMAP (toujours en retard sur le code)
+Phase 6 — Post-MVP → 0% (2v2/3v3, MMR, historique, cosmétiques — ne pas toucher avant que le 1v1 soit stable)
 
 ---
 
