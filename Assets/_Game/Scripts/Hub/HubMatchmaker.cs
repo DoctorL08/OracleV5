@@ -53,10 +53,9 @@ public class HubMatchmaker : MonoBehaviourPunCallbacks
         if (IsSearching) return;
         IsSearching = true;
 
-        // AutomaticallySyncScene est activé dans JoinOrCreateMatchRoom(), APRÈS avoir quitté
-        // HUB_GLOBAL et détruit le HubPlayer. L'activer ici (en étant encore dans HUB_GLOBAL
-        // avec un HubPlayer vivant) crée une race condition : Photon peut migrer le HubPlayer
-        // vers la scène de combat avant que PhotonNetwork.Destroy() soit confirmé côté serveur.
+        // DOIT être activé sur tous les clients AVANT d'entrer dans la room de combat.
+        // Si seulement le MasterClient l'a à true, lui seul chargera la scène.
+        PhotonNetwork.AutomaticallySyncScene = true;
 
         OnSearchStarted?.Invoke();
         OnPlayerCountUpdated?.Invoke(0, maxPlayersFor1v1);
@@ -128,11 +127,6 @@ public class HubMatchmaker : MonoBehaviourPunCallbacks
     void JoinOrCreateMatchRoom()
     {
         if (!PhotonNetwork.IsConnectedAndReady) return;
-
-        // Activé ici, après avoir quitté HUB_GLOBAL et détruit le HubPlayer.
-        // Tous les clients doivent avoir ce flag à true AVANT d'entrer dans la room de combat
-        // pour que PhotonNetwork.LoadLevel() se propage correctement.
-        PhotonNetwork.AutomaticallySyncScene = true;
 
         // JoinRandomOrCreateRoom est atomique : évite la race condition où deux clients
         // échouent à JoinRandom simultanément et créent chacun leur propre room.

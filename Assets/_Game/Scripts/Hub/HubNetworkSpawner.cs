@@ -53,17 +53,10 @@ public class HubNetworkSpawner : MonoBehaviourPunCallbacks
     /// <summary>Appelé par Unity à chaque chargement de scène. Re-initialise le Hub si on revient dedans.</summary>
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Filet de sécurité : détruire le HubPlayer s'il a survécu au changement de scène
-        // (ex. race condition avec AutomaticallySyncScene ou DestroyPlayerBeforeLeave non appelé).
-        // On utilise PhotonNetwork.Destroy si on est encore dans une room et qu'on est propriétaire
-        // de l'objet, pour éviter de laisser un fantôme côté adversaire.
+        // Détruire le HubPlayer s'il a survécu au changement de scène (ex. via Photon AutomaticallySyncScene).
         if (_myPlayer != null)
         {
-            var pv = _myPlayer.GetComponent<Photon.Pun.PhotonView>();
-            if (pv != null && pv.IsMine && PhotonNetwork.InRoom)
-                PhotonNetwork.Destroy(_myPlayer);
-            else
-                Destroy(_myPlayer);
+            Destroy(_myPlayer);
             _myPlayer = null;
         }
 

@@ -32,21 +32,6 @@ public class CombatInitializer : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-
-        // Nettoyage défensif : détruire tout HubPlayer(Clone) qui aurait survécu à la
-        // transition de scène via AutomaticallySyncScene (race condition Hub → Ranked1v1).
-        foreach (var go in FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (go.name.StartsWith("HubPlayer") && go != gameObject)
-            {
-                Debug.LogWarning($"[CombatInitializer] HubPlayer parasite détecté et supprimé : {go.name}");
-                var pv = go.GetComponent<Photon.Pun.PhotonView>();
-                if (pv != null && pv.IsMine && PhotonNetwork.InRoom)
-                    PhotonNetwork.Destroy(go);
-                else
-                    Destroy(go);
-            }
-        }
     }
 
     // =========================================================
